@@ -15,19 +15,9 @@ async function authentication(req, res, next) {
     }
     jwt.verify(token, "plutonium_project3", (err, decoded) => {
       if (err) {
-        // let payload=JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString())
-        // console.log(payload)
-        //   if (payload.exp < (new Date().getTime() + 1) / 1000) {
-        //     return res
-        //       .status(401)
-        //       .send({ status: false, message: "token expired" });
-        //   }
-        return res
-          .status(401)
-          .send({ status: false, message: "invalid token" });
+        return res.status(401).send({ status: false, message: err.message });
       }
       req.decoded = decoded;
-
       next();
     });
   } catch (error) {
