@@ -93,17 +93,15 @@ async function createReview(req, res) {
     }
 
     data.bookId = id;
-    await reviewModel.create(data);
-    const reviewDocuments = await reviewModel
-      .find({
-        bookId: id,
-        isDeleted: false,
-      })
-      .select({ isDeleted: 0, createdAt: 0, updatedAt: 0, __v: 0 });
+    const reviewDocuments = await reviewModel.create(data);
+    let rDoc = reviewDocuments.toObject();
+    ["isDeleted", "createdAt", "updatedAt", "_v"].forEach(
+      (x) => delete rDoc[x]
+    );
     let bookcolection = await bookModel
       .findOneAndUpdate(
         { _id: id, isDeleted: false },
-        { reviews: reviewDocuments.length },
+        { reviews: rDoc.length },
         { new: true }
       )
       .select({ __v: 0 })
@@ -271,11 +269,11 @@ const deleteReview = async function (req, res) {
       });
     }
 
-    let reviewDocuments = await reviewModel.find({ bookId, isDeleted: false });
+    // let reviewDocuments = await reviewModel.find({ bookId, isDeleted: false });
 
     await bookModel.findOneAndUpdate(
       { _id: bookId, isDeleted: false },
-      { reviews: reviewDocuments.length }
+      { $inc: { reviews: -1 } } // { reviews: reviewDocuments.length }
     );
 
     return res

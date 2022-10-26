@@ -154,11 +154,7 @@ const getBooks = async function (req, res) {
       isDeleted: false,
     });
     let bookcolection = await bookModel
-      .findOneAndUpdate(
-        { _id: id, isDeleted: false },
-        { reviews: reviewDocuments.length },
-        { new: true }
-      )
+      .findOne({ _id: id, isDeleted: false })
       .select({ __v: 0 })
       .lean();
     if (!bookcolection) {
@@ -241,11 +237,6 @@ async function updateBook(req, res) {
         new: true,
       })
       .select({ __v: 0 });
-    if (!updateBook) {
-      return res
-        .status(404)
-        .send({ status: false, message: "No books founded" });
-    }
     return res
       .status(200)
       .send({ status: true, msg: "Success", data: updateBook });
